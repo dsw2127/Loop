@@ -64,6 +64,7 @@ final class SettingsTableViewController: UITableViewController {
     fileprivate enum LoopRow: Int, CaseCountable {
         case dosing = 0
         case diagnostic
+        case keepScreenOn
     }
 
     fileprivate enum PumpRow: Int, CaseCountable {
@@ -181,6 +182,15 @@ final class SettingsTableViewController: UITableViewController {
                 cell.accessoryType = .disclosureIndicator
 
                 return cell
+            case .keepScreenOn:
+                let switchCell = tableView.dequeueReusableCell(withIdentifier: SwitchTableViewCell.className, for: indexPath) as! SwitchTableViewCell
+
+                switchCell.switch?.isOn = UIApplication.shared.isIdleTimerDisabled
+                switchCell.textLabel?.text = NSLocalizedString("Keep Screen On", comment: "The title text for the keep screen on switch cell")
+
+                switchCell.switch?.addTarget(self, action: #selector(keepScreenOnChanged(_:)), for: .valueChanged)
+
+                return switchCell
             }
         case .pump:
             switch PumpRow(rawValue: indexPath.row)! {
@@ -558,6 +568,8 @@ final class SettingsTableViewController: UITableViewController {
                 show(vc, sender: sender)
             case .dosing:
                 break
+            case .keepScreenOn:
+                break
             }
         case .services:
             switch ServiceRow(rawValue: indexPath.row)! {
@@ -655,6 +667,10 @@ final class SettingsTableViewController: UITableViewController {
 
     @objc private func dosingEnabledChanged(_ sender: UISwitch) {
         dataManager.loopManager.settings.dosingEnabled = sender.isOn
+    }
+
+    @objc private func keepScreenOnChanged(_ sender: UISwitch) {
+        UIApplication.shared.isIdleTimerDisabled = sender.isOn
     }
 }
 
